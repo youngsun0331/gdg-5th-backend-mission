@@ -17,14 +17,21 @@ public class OrderCreateRequest {
 
 
 
-    @Getter
+    @Data
+    @NoArgsConstructor
     public static class Item {
+
 
         @Schema(description = "상품 이름", example = "apple")
         private String name ;
 
         @Schema(description = "상품 갯수", example = "20")
         private Long cnt;
+
+        public Item(String name, Long cnt) {
+            this.name = name;
+            this.cnt = cnt;
+        }
 
 
     }

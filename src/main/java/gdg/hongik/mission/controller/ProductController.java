@@ -35,7 +35,6 @@ import static ch.qos.logback.core.joran.spi.ConsoleTarget.findByName;
 @Tag(name ="Product-Controller" ,description = "Product API")
 public class ProductController {
 
-    @Autowired
     private final ProductService productService;
 
     public ProductController(ProductService productService) {
@@ -67,6 +66,8 @@ public class ProductController {
     public ResponseEntity<?> getProduct(@PathVariable String name){
         //컨트롤러 계층
         //사용자요청을 처리
+        //컨트롤러에 부합하지 않음
+        /*
         boolean ex = productService.findByName(name);
         if(ex == false ){
             String errorMessage = "요청하신 상품을 찾을 수 없습니다. name: " + name;
@@ -75,7 +76,7 @@ public class ProductController {
                     .status(HttpStatus.NOT_FOUND)
                     .body(errorMessage); // String을 본문에 담아 반환
         }
-
+        */ 
         ProductGetResponse item = productService.getProduct(name);
 
         return ResponseEntity.ok(item);
@@ -116,10 +117,12 @@ public class ProductController {
                     }))
     })
 
-    public ResponseEntity<?> createProduct(@RequestBody ProductCreateRequest request){
+    public ResponseEntity<Void> createProduct(@RequestBody ProductCreateRequest request){
 
 
         // 중복인지 확인
+        // 이건 컨트롤러에 맞지 않은 코드임
+        /*
         boolean ex= productService.findByName(request.getName());
         if( ex == true ) {
 
@@ -132,6 +135,9 @@ public class ProductController {
 
 
         }
+        */
+
+
         //물품 만들기
         productService.postProduct(request);
         
@@ -158,15 +164,12 @@ public class ProductController {
                         }
                         """
         )}))
+
     public ResponseEntity<ProductUpdateResponse> updateProduct(
             @PathVariable Long id, @RequestBody ProductUpdateRequest request){
-
-        //서비스 계층에서 확인용 구문
-        Long findId = productService.findById(id);
-
         
-        //존재하면 업데이트
-        ProductUpdateResponse result = productService.updateProduct(findId,request);
+        //업데이스 서비스계층 전달
+        ProductUpdateResponse result = productService.updateProduct(id,request);
 
         return ResponseEntity.ok(result);
     }
@@ -201,6 +204,8 @@ public class ProductController {
             @RequestBody ProductDeleteRequest request){
 
 
+
+        //이름들 호출
         List<String> deleteNames = new ArrayList<>();
         for(String findName : request.getName()){
             deleteNames.add(findName);

@@ -11,10 +11,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 
@@ -31,13 +28,19 @@ import static org.springframework.web.servlet.function.ServerResponse.created;
 public class OrderController {
 
 
+    private final ProductService productService;
+
+    public OrderController(ProductService productService) {
+        this.productService = productService;
+    }
+
     /**
      * @param request 요청하기
      * @return 반환 목록 없음
      */
 
 
-    @PostMapping
+    @PatchMapping
     @Operation(summary = "주문 등록", description = "주문 정보를 생성합니다")
     @ApiResponse(responseCode = "201", content = @Content(mediaType = "application/json",
             examples = {@ExampleObject(
@@ -64,7 +67,7 @@ public class OrderController {
     public ResponseEntity<OrderCreateResponse> createOrder(@RequestBody OrderCreateRequest request){
 
         //product의 재고랑 연결하기
-        OrderCreateResponse result = ProductService.orderCreate(request);
+        OrderCreateResponse result = productService.orderCreate(request);
 
         return ResponseEntity.ok(result);
 
