@@ -2,10 +2,11 @@ package gdg.hongik.mission.controller;
 
 
 
-import gdg.hongik.mission.dto.Product;
+import gdg.hongik.mission.dto.request.ProductOrderCreateRequest;
 import gdg.hongik.mission.dto.request.ProductCreateRequest;
 import gdg.hongik.mission.dto.request.ProductDeleteRequest;
 import gdg.hongik.mission.dto.request.ProductUpdateRequest;
+import gdg.hongik.mission.dto.response.ProductOrderCreateResponse;
 import gdg.hongik.mission.dto.response.ProductDeleteResponse;
 import gdg.hongik.mission.dto.response.ProductGetResponse;
 import gdg.hongik.mission.dto.response.ProductUpdateResponse;
@@ -16,15 +17,11 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.*;
-
-import static ch.qos.logback.core.joran.spi.ConsoleTarget.findByName;
 
 
 /**
@@ -64,19 +61,7 @@ public class ProductController {
                             """
             )}))
     public ResponseEntity<?> getProduct(@PathVariable String name){
-        //컨트롤러 계층
-        //사용자요청을 처리
-        //컨트롤러에 부합하지 않음
-        /*
-        boolean ex = productService.findByName(name);
-        if(ex == false ){
-            String errorMessage = "요청하신 상품을 찾을 수 없습니다. name: " + name;
 
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body(errorMessage); // String을 본문에 담아 반환
-        }
-        */ 
         ProductGetResponse item = productService.getProduct(name);
 
         return ResponseEntity.ok(item);
@@ -118,25 +103,6 @@ public class ProductController {
     })
 
     public ResponseEntity<Void> createProduct(@RequestBody ProductCreateRequest request){
-
-
-        // 중복인지 확인
-        // 이건 컨트롤러에 맞지 않은 코드임
-        /*
-        boolean ex= productService.findByName(request.getName());
-        if( ex == true ) {
-
-
-            String errorMessage = "이미 존재하는 상품명 입니다. name: " + request.getName();
-
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body(errorMessage); // String을 본문에 담아 반환
-
-
-        }
-        */
-
 
         //물품 만들기
         productService.postProduct(request);
@@ -203,8 +169,6 @@ public class ProductController {
     public ResponseEntity<ProductDeleteResponse> deleteProduct(
             @RequestBody ProductDeleteRequest request){
 
-
-
         //이름들 호출
         List<String> deleteNames = new ArrayList<>();
         for(String findName : request.getName()){
@@ -218,6 +182,42 @@ public class ProductController {
 
         return ResponseEntity.ok(response);
     }
+
+
+    @PatchMapping("/order")
+    @Operation(summary = "주문 등록", description = "주문 정보를 생성합니다")
+    @ApiResponse(responseCode = "201", content = @Content(mediaType = "application/json",
+            examples = {@ExampleObject(
+                    name = "주문정보 생성 성공",
+                    value = """
+                    {
+                        "totalPrice" : 40000,
+                        "cart" : 
+                        [
+                            {
+                                "name" : "apple",
+                                "cnt" : 20,
+                                "price" : 1000
+                            },
+                            {
+                                "name"  : "water",
+                                "cnt"   : 20,
+                                "price" : 1000
+                            }
+                        ]
+                    }
+                    """)
+            }))
+    public ResponseEntity<ProductOrderCreateResponse> createOrder(@RequestBody ProductOrderCreateRequest request){
+
+        //product의 재고랑 연결하기
+        ProductOrderCreateResponse result = productService.orderCreate(request);
+
+        return ResponseEntity.ok(result);
+
+
+    }
+
 
 
 }

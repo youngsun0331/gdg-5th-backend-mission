@@ -2,7 +2,6 @@ package gdg.hongik.mission.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
@@ -10,7 +9,7 @@ import java.util.List;
 @NoArgsConstructor
 @Schema(description = "주문 요청 DTO")
 @Data
-public class OrderCreateRequest {
+public class ProductOrderCreateRequest {
 
     @Schema(description = "주문 상품 목록")
     private List<Item> items;

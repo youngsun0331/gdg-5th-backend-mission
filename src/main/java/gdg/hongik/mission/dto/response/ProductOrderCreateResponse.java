@@ -10,7 +10,7 @@ import java.util.List;
 
 @NoArgsConstructor
 @Data
-public class OrderCreateResponse {
+public class ProductOrderCreateResponse {
 
 
     @Schema(description = "상품 전체 가격", example = "20000")
@@ -21,7 +21,7 @@ public class OrderCreateResponse {
     private List<Item> item;
 
 
-    public OrderCreateResponse(List<Item> item) {
+    public ProductOrderCreateResponse(List<Item> item) {
         this.item = item;
     }
 

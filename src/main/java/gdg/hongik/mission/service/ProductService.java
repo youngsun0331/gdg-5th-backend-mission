@@ -1,11 +1,13 @@
 package gdg.hongik.mission.service;
 
 
+import gdg.hongik.mission.common.exception.BadRequestException;
+import gdg.hongik.mission.common.exception.NotFoundException;
 import gdg.hongik.mission.dto.Product;
-import gdg.hongik.mission.dto.request.OrderCreateRequest;
+import gdg.hongik.mission.dto.request.ProductOrderCreateRequest;
 import gdg.hongik.mission.dto.request.ProductCreateRequest;
 import gdg.hongik.mission.dto.request.ProductUpdateRequest;
-import gdg.hongik.mission.dto.response.OrderCreateResponse;
+import gdg.hongik.mission.dto.response.ProductOrderCreateResponse;
 import gdg.hongik.mission.dto.response.ProductDeleteResponse;
 import gdg.hongik.mission.dto.response.ProductGetResponse;
 import gdg.hongik.mission.dto.response.ProductUpdateResponse;
@@ -14,6 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+
+import static gdg.hongik.mission.common.message.ErrorMessage.PRODUCT_ALREAD_EXIST;
+import static gdg.hongik.mission.common.message.ErrorMessage.PRODUCT_NOT_FOUND;
 
 /**
  * 
@@ -44,20 +49,10 @@ public class ProductService {
     @Transactional
     public ProductGetResponse getProduct (String productName){
 
-        //코드 중복임
-        /*
-        Map.Entry<Long,Product> find = repository.entrySet().stream()
-                .filter(p -> productName.equals(p.getValue().getName()))
-                .findFirst()
-                .orElse(null);
-        */
-
         Product find = repository.findByName(productName);
         if (find == null){
-            throw new RuntimeException("존재하지 않는 상품명 입니다");
+            throw new NotFoundException(PRODUCT_NOT_FOUND);
         }
-
-
 
         ProductGetResponse pg = ProductGetResponse.builder()
                 .id(find.getProductId())
@@ -80,7 +75,7 @@ public class ProductService {
 
         Product ex = repository.findByName(request.getName());
         if( ex != null){
-            throw new RuntimeException("이미 존재하는 상품입니다");
+            throw new BadRequestException(PRODUCT_ALREAD_EXIST);
         }
 
         Product product = Product.builder()
@@ -108,7 +103,7 @@ public class ProductService {
         Product product = repository.findById(findId);
 
         if(product == null) {
-            throw new RuntimeException("존재 하지 않는 상품입니다");
+            throw new NotFoundException(PRODUCT_NOT_FOUND);
         }
 
 
@@ -139,7 +134,7 @@ public class ProductService {
         for(String deName :deleteNames ){
             Product product = repository.findByName(deName);
             if( product == null){
-                System.out.println("존재하지 않는 상품명 입니다");
+                System.out.println("여러개의 삭제중 존재하지 않는 상품명 입니다");
                 continue;
             }
 
@@ -156,9 +151,6 @@ public class ProductService {
 
         }
 
-
-
-
         // 응답 구성 및 반환
         response.setItems(remainingItems);
         return response;
@@ -171,15 +163,15 @@ public class ProductService {
      * @return
      */
     @Transactional
-    public OrderCreateResponse orderCreate(OrderCreateRequest request) {
+    public ProductOrderCreateResponse orderCreate(ProductOrderCreateRequest request) {
 
         //리턴할 item 리스트
-        List<OrderCreateResponse.Item> or = new ArrayList<>();
+        List<ProductOrderCreateResponse.Item> or = new ArrayList<>();
         Long totalPrice = 0L;
 
 
         //상품 이름으로 찾기
-        for(OrderCreateRequest.Item item : request.getItems()){
+        for(ProductOrderCreateRequest.Item item : request.getItems()){
             String itemName = item.getName();
             Product product = repository.findByName(itemName);
 
@@ -199,7 +191,7 @@ public class ProductService {
 
 
             //리턴할 itemDTO 한개 생성 후 리턴
-            OrderCreateResponse.Item pg = OrderCreateResponse.Item.builder()
+            ProductOrderCreateResponse.Item pg = ProductOrderCreateResponse.Item.builder()
                     .price(product.getPrice() * n)
                     .name(product.getName())
                     .cnt(n)
@@ -209,7 +201,7 @@ public class ProductService {
             totalPrice += product.getPrice() * n;
         }
 
-        OrderCreateResponse result = new OrderCreateResponse() ;
+        ProductOrderCreateResponse result = new ProductOrderCreateResponse() ;
         result.setTotalPrice(totalPrice);
         result.setItem(or);
 
