@@ -32,6 +32,7 @@ import static ch.qos.logback.core.joran.spi.ConsoleTarget.findByName;
  */
 @RestController
 @RequestMapping("product")
+@CrossOrigin("*")
 @Tag(name ="Product-Controller" ,description = "Product API")
 public class ProductController {
 
@@ -117,7 +118,8 @@ public class ProductController {
                     }))
     })
 
-    public ResponseEntity<Void> createProduct(@RequestBody ProductCreateRequest request){
+    public ResponseEntity<Void> createProduct(
+            @RequestBody ProductCreateRequest request){
 
 
         // 중복인지 확인
@@ -136,11 +138,11 @@ public class ProductController {
 
         }
         */
-
+        System.out.println("postProduct");
 
         //물품 만들기
         productService.postProduct(request);
-        
+
         return ResponseEntity.created(URI.create("product")).build();
     }
 
